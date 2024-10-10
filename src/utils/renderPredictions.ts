@@ -6,7 +6,10 @@ export const renderPredictions = async (
 ) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  const font = "16px sans-serif";
+  const isSmallScreen = window.innerWidth <= 768;
+
+  const fontSize = isSmallScreen ? "24px" : "16px";
+  const font = `${fontSize} sans-serif`;
   ctx.font = font;
   ctx.textBaseline = "top";
 
@@ -25,7 +28,7 @@ export const renderPredictions = async (
     // label background
     ctx.fillStyle = "#00FFFF";
     const textWidth = ctx.measureText(prediction.class).width;
-    const textHeight = parseInt(font, 10); // consider base 10 when parsing
+    const textHeight = parseInt(fontSize, 10); // consider base 10 when parsing
     ctx.fillRect(x, y, textWidth + 4, textHeight + 4);
 
     // label
