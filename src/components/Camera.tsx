@@ -65,6 +65,12 @@ export default function Camera() {
   useEffect(() => {
     runCoco();
     showMyVideo();
+
+    return () => {
+      if (detectInterval) {
+        clearInterval(detectInterval);
+      }
+    };
   }, [runCoco]);
 
   return (
