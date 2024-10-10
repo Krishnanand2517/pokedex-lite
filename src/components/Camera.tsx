@@ -2,19 +2,23 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
-
 import "@tensorflow/tfjs-backend-webgl";
 import "@tensorflow/tfjs-backend-cpu";
 import {
   load as cocoSSDLoad,
   ObjectDetection,
 } from "@tensorflow-models/coco-ssd";
+import { isMobile } from "react-device-detect";
+
 import { renderPredictions } from "@/utils/renderPredictions";
 
 let detectInterval: NodeJS.Timeout;
 
 export default function Camera() {
   const [isLoading, setIsLoading] = useState(true);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">(
+    "environment"
+  );
 
   const cameraRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -62,7 +66,15 @@ export default function Camera() {
     }
   };
 
+  const switchCamera = () => {
+    setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  };
+
   useEffect(() => {
+    if (!isMobile) {
+      setFacingMode("user");
+    }
+
     runCoco();
     showMyVideo();
 
@@ -83,12 +95,24 @@ export default function Camera() {
             ref={cameraRef}
             muted
             className="rounded-md w-full lg:h-[480px]"
+            videoConstraints={{
+              facingMode: facingMode,
+            }}
           />
 
           <canvas
             ref={canvasRef}
             className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
           />
+
+          {isMobile && (
+            <button
+              onClick={switchCamera}
+              className="absolute bottom-2 right-2 bg-white text-black px-2 py-1 rounded-full shadow-md text-xs"
+            >
+              Switch Camera
+            </button>
+          )}
         </div>
       )}
     </>
