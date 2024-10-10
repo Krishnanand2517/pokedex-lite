@@ -9,6 +9,7 @@ import {
   load as cocoSSDLoad,
   ObjectDetection,
 } from "@tensorflow-models/coco-ssd";
+import { renderPredictions } from "@/utils/renderPredictions";
 
 let detectInterval: NodeJS.Timeout;
 
@@ -16,16 +17,28 @@ export default function Camera() {
   const [isLoading, setIsLoading] = useState(true);
 
   const cameraRef = useRef<Webcam>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const runObjectDetection = async (net: ObjectDetection) => {
-    if (cameraRef.current && cameraRef.current.video?.readyState === 4) {
+    if (
+      canvasRef.current &&
+      cameraRef.current &&
+      cameraRef.current.video?.readyState === 4
+    ) {
+      canvasRef.current.width = cameraRef.current.video.videoWidth;
+      canvasRef.current.height = cameraRef.current.video.videoHeight;
+
       const detectedObjects = await net.detect(
         cameraRef.current.video,
         undefined,
         0.6
       );
 
-      console.log(detectedObjects);
+      const context = canvasRef.current.getContext("2d");
+
+      if (context) {
+        renderPredictions(detectedObjects, context);
+      }
     }
   };
 
@@ -59,11 +72,16 @@ export default function Camera() {
       {isLoading ? (
         <p className="tracking-tight">Loading real-time detection model...</p>
       ) : (
-        <div>
+        <div className="relative">
           <Webcam
             ref={cameraRef}
             muted
             className="rounded-md w-full lg:h-[480px]"
+          />
+
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
           />
         </div>
       )}
