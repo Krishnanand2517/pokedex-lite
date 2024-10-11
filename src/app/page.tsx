@@ -10,13 +10,13 @@ export default function Home() {
 
         <Camera />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-xs lg:text-sm text-white/70 tracking-tight">
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center text-xs lg:text-sm text-foreground/70 tracking-tight">
         <p>
           Made with ❤️ by{" "}
           <a
             href="https://krishnanand-yadav-portfolio.vercel.app/"
             target="_blank"
-            className="font-semibold text-white/85 hover:text-white transition-colors"
+            className="font-semibold text-foreground/85 hover:text-foreground transition-colors"
           >
             Krishnanand Yadav
           </a>

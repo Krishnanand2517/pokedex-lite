@@ -11,6 +11,7 @@ import {
 import { isMobile } from "react-device-detect";
 
 import { renderPredictions } from "@/utils/renderPredictions";
+import Description from "./Description";
 
 let detectInterval: NodeJS.Timeout;
 
@@ -19,6 +20,7 @@ export default function Camera() {
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
   );
+  const [capturedImage, setCapturedImage] = useState<string | null>();
 
   const cameraRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,7 +55,7 @@ export default function Camera() {
 
     detectInterval = setInterval(() => {
       runObjectDetection(net);
-    }, 10);
+    }, 100);
   }, []);
 
   const showMyVideo = () => {
@@ -68,6 +70,13 @@ export default function Camera() {
 
   const switchCamera = () => {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  };
+
+  const captureImage = () => {
+    if (cameraRef.current && cameraRef.current.video?.readyState === 4) {
+      const imageSrc = cameraRef.current.getScreenshot();
+      setCapturedImage(imageSrc);
+    }
   };
 
   useEffect(() => {
@@ -90,30 +99,49 @@ export default function Camera() {
       {isLoading ? (
         <p className="tracking-tight">Loading real-time detection model...</p>
       ) : (
-        <div className="relative">
-          <Webcam
-            ref={cameraRef}
-            muted
-            className="rounded-md w-full lg:h-[480px]"
-            videoConstraints={{
-              facingMode: facingMode,
-            }}
-          />
+        <>
+          <div className="relative">
+            <Webcam
+              ref={cameraRef}
+              muted
+              className="rounded-md w-full lg:h-[480px]"
+              videoConstraints={{
+                facingMode: facingMode,
+              }}
+            />
 
-          <canvas
-            ref={canvasRef}
-            className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
-          />
+            <canvas
+              ref={canvasRef}
+              className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
+            />
 
-          {isMobile && (
+            {isMobile && (
+              <button
+                onClick={switchCamera}
+                className="absolute bottom-2 right-2 bg-foreground text-background px-2 py-1 rounded-full shadow-md text-xs"
+              >
+                Switch Camera
+              </button>
+            )}
+
             <button
-              onClick={switchCamera}
-              className="absolute bottom-2 right-2 bg-white text-black px-2 py-1 rounded-full shadow-md text-xs"
+              onClick={captureImage}
+              className="mx-auto my-4 bg-foreground text-background px-4 py-2 rounded-full shadow-md"
             >
-              Switch Camera
+              Capture Image
             </button>
+          </div>
+
+          {capturedImage && cameraRef.current?.video && (
+            <div>
+              <Description
+                capturedImgSrc={capturedImage}
+                imgWidth={cameraRef.current.video.videoWidth}
+                imgHeight={cameraRef.current.video.videoHeight}
+              />
+            </div>
           )}
-        </div>
+        </>
       )}
     </>
   );
