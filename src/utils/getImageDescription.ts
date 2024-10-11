@@ -1,7 +1,5 @@
 export const getImageDescription = async (imageData: string) => {
   try {
-    console.log(imageData);
-
     const response = await fetch("/api/describe-image", {
       method: "POST",
       headers: {
@@ -15,7 +13,7 @@ export const getImageDescription = async (imageData: string) => {
     }
 
     const data = await response.json();
-    return data.description;
+    return data;
   } catch (error) {
     console.error("getImageDescription error:", error);
     throw error;

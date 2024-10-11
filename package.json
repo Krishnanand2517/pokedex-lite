@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^0.0.51",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.21.0",
     "@tensorflow/tfjs-backend-cpu": "^4.21.0",
     "@tensorflow/tfjs-backend-webgl": "^4.21.0",
+    "ai": "^3.4.9",
     "next": "14.2.15",
     "react": "^18",
     "react-device-detect": "^2.2.3",

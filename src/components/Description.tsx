@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { useState } from "react";
+import Image from "next/image";
 
 import { getImageDescription } from "@/utils/getImageDescription";
 
@@ -15,15 +15,25 @@ export default function Description({
   imgHeight,
 }: DescriptionProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [imageTitle, setimageTitle] = useState<string | null>();
   const [imageDescription, setImageDescription] = useState<string | null>();
+
+  const separateTitleAndDesc = (
+    messageString: string,
+    separator: string = "||"
+  ) => {
+    const splitMessage = messageString.split(separator);
+    setimageTitle(splitMessage[0]);
+    setImageDescription(splitMessage[1]);
+  };
 
   const describeImage = async () => {
     if (capturedImgSrc) {
       setIsLoading(true);
 
       try {
-        const description = await getImageDescription(capturedImgSrc);
-        setImageDescription(description);
+        const completionData = await getImageDescription(capturedImgSrc);
+        separateTitleAndDesc(completionData.text);
       } catch (error) {
         console.error("Error getting image description:", error);
         setImageDescription(
@@ -48,11 +58,13 @@ export default function Description({
 
         <div className="mt-8 lg:mt-0 lg:w-2/3 p-4 lg:p-8 border border-foreground rounded-lg">
           <h3 className="mb-6 text-center lg:text-left text-xl lg:text-3xl font-bold tracking-tighter">
-            {imageDescription || "Title"}
+            {isLoading ? "Loading..." : imageTitle || "Title"}
           </h3>
           <p className="text-center lg:text-left text-sm lg:text-base tracking-tight">
-            {imageDescription ||
-              'Image description will appear here after you click the "Describe" button...'}
+            {isLoading
+              ? "Loading..."
+              : imageDescription ||
+                'Image description will appear here after you click the "Describe" button...'}
           </p>
         </div>
       </div>
@@ -62,7 +74,7 @@ export default function Description({
         disabled={isLoading}
         className="lg:w-1/3 bg-foreground text-background px-4 py-2 rounded-full shadow-md hover:bg-background hover:text-foreground transition-colors"
       >
-        Describe
+        {isLoading ? "Describing..." : "Describe"}
       </button>
     </div>
   );
