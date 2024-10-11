@@ -48,7 +48,7 @@ export default function Camera() {
 
   const runCoco = useCallback(async () => {
     setIsLoading(true); // model loading started
-    const net = await cocoSSDLoad();
+    const net = await cocoSSDLoad({ base: "lite_mobilenet_v2" });
     setIsLoading(false); // model loading finished
 
     detectInterval = setInterval(() => {
