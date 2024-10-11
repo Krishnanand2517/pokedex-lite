@@ -17,6 +17,8 @@ let detectInterval: NodeJS.Timeout;
 
 export default function Camera() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isShowingVideo, setIsShowingVideo] = useState(true);
+
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     "environment"
   );
@@ -68,6 +70,18 @@ export default function Camera() {
     }
   };
 
+  const startVideo = () => {
+    setIsShowingVideo(true);
+  };
+
+  const stopVideo = () => {
+    const tracks = cameraRef.current?.stream?.getTracks();
+
+    tracks?.forEach((track) => track.stop());
+
+    setIsShowingVideo(false);
+  };
+
   const switchCamera = () => {
     setFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
@@ -75,7 +89,9 @@ export default function Camera() {
   const captureImage = () => {
     if (cameraRef.current && cameraRef.current.video?.readyState === 4) {
       const imageSrc = cameraRef.current.getScreenshot();
+
       setCapturedImage(imageSrc);
+      stopVideo();
     }
   };
 
@@ -100,37 +116,39 @@ export default function Camera() {
         <p className="tracking-tight">Loading real-time detection model...</p>
       ) : (
         <>
-          <div className="relative">
-            <Webcam
-              ref={cameraRef}
-              muted
-              className="rounded-md w-full lg:h-[480px]"
-              videoConstraints={{
-                facingMode: facingMode,
-              }}
-            />
+          {isShowingVideo && (
+            <div className="relative">
+              <Webcam
+                ref={cameraRef}
+                muted
+                className="rounded-md w-full lg:h-[480px]"
+                videoConstraints={{
+                  facingMode: facingMode,
+                }}
+              />
 
-            <canvas
-              ref={canvasRef}
-              className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
-            />
+              <canvas
+                ref={canvasRef}
+                className="absolute top-0 left-0 z-50 w-full lg:h-[480px]"
+              />
 
-            {isMobile && (
-              <button
-                onClick={switchCamera}
-                className="absolute bottom-2 right-2 bg-foreground text-background px-2 py-1 rounded-full shadow-md text-xs"
-              >
-                Switch Camera
-              </button>
-            )}
+              {isMobile && (
+                <button
+                  onClick={switchCamera}
+                  className="absolute bottom-2 right-2 bg-foreground text-background px-2 py-1 rounded-full shadow-md text-xs"
+                >
+                  Switch Camera
+                </button>
+              )}
+            </div>
+          )}
 
-            <button
-              onClick={captureImage}
-              className="mx-auto my-4 bg-foreground text-background px-4 py-2 rounded-full shadow-md"
-            >
-              Capture Image
-            </button>
-          </div>
+          <button
+            onClick={isShowingVideo ? captureImage : startVideo}
+            className="mx-auto my-4 bg-foreground text-background px-4 py-2 rounded-full shadow-md"
+          >
+            {isShowingVideo ? "Capture Image" : "Capture Again"}
+          </button>
 
           {capturedImage && cameraRef.current?.video && (
             <div>
